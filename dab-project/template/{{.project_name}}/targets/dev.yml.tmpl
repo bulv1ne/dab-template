@@ -1,0 +1,11 @@
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: {{workspace_host}}
+    variables:
+      storage_root: "TODO"
+      catalog: {{default_catalog}}
+      environment: dev
+      slack_channel_email: ${workspace.current_user.userName}

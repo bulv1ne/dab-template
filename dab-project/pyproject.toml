@@ -1,0 +1,7 @@
+[tool.ruff]
+builtins = ["spark", "display", "dbutils"]
+
+[tool.ruff.lint]
+ignore = [
+    "E402",
+]

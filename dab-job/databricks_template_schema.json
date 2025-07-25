@@ -1,0 +1,28 @@
+{
+  "properties": {
+    "job_name": {
+      "type": "string",
+      "default": "job_name",
+      "description": "Job name",
+      "order": 1
+    },
+    "raw_to_trusted": {
+      "order": 2,
+      "type": "boolean",
+      "description": "Raw to trusted",
+      "default": true
+    },
+    "trusted_to_service": {
+      "order": 3,
+      "type": "boolean",
+      "description": "Trusted to service",
+      "default": true
+    },
+    "use_serverless": {
+      "order": 4,
+      "type": "boolean",
+      "description": "Use serverless compute",
+      "default": false
+    }
+  }
+}

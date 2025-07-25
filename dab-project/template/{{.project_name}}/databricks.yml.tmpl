@@ -1,0 +1,18 @@
+# This is a Databricks asset bundle definition for {{.project_name}}.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: {{.project_name}}
+
+include:
+  - jobs/**/*.yml
+  - targets/*.yml
+
+variables:
+  env:
+    description: "The environment, can be dev, qa or live"
+  catalog:
+    description: "Read and write in this UC catalog"
+  slack_channel_email:
+    description: "The slack channel to send alert to"
+  storage_root:
+    description: "Where on S3 the files should be stored"

@@ -1,0 +1,97 @@
+# The main job for {{.job_name}}.
+resources:
+  schemas:
+    {{- if .raw_to_trusted}}
+    raw_{{.job_name}}:
+      name: raw__{{.job_name}}
+      catalog_name: ${var.catalog}
+      comment: "The schema that contains raw {{.job_name}} tables.\nCreated by DABs."
+      storage_root: ${var.storage_root}
+    {{- end}}
+    {{- if .trusted_to_service}}
+    trusted_{{.job_name}}:
+      name: trusted__{{.job_name}}
+      catalog_name: ${var.catalog}
+      comment: "The schema that contains raw {{.job_name}} tables.\nCreated by DABs."
+      storage_root: ${var.storage_root}
+    {{- end}}
+  volumes:
+    {{- if .raw_to_trusted}}
+    raw_checkpoint_{{.job_name}}:
+      name: checkpoint
+      catalog_name: ${var.catalog}
+      schema_name: ${resources.schemas.raw_{{.job_name}}.name}
+      comment: "A managed volume to store streaming checkpoint data.\nCreated by DABs.\nDo not edit!"
+    {{- end}}
+    {{- if .trusted_to_service}}
+    trusted_checkpoint_{{.job_name}}:
+      name: checkpoint
+      catalog_name: ${var.catalog}
+      schema_name: ${resources.schemas.trusted_{{.job_name}}.name}
+      comment: "A managed volume to store streaming checkpoint data.\nCreated by DABs.\nDo not edit!"
+    {{- end}}
+
+  jobs:
+    {{.job_name}}_job:
+      name: {{.job_name}}_job
+
+      schedule:
+        quartz_cron_expression: "0 30 7 * * ?"  # Runs every day at 07:30 UTC
+        timezone_id: UTC
+
+      timeout_seconds: 3600  # Stop the job after 1 hour
+      max_concurrent_runs: 1
+
+      email_notifications:
+        on_failure:
+          - ${var.slack_channel_email}
+      {{- if not .use_serverless}}
+      job_clusters:
+        - job_cluster_key: cluster
+          new_cluster:
+            node_type_id: {{smallest_node_type}}
+            num_workers: 2
+            spark_version: 16.4.x-scala2.13
+            data_security_mode: USER_ISOLATION
+
+            aws_attributes:
+              first_on_demand: 1
+              availability: SPOT_WITH_FALLBACK
+              zone_id: auto
+            custom_tags:
+              CostCenter: COST_CENTER  # TODO: Replace COST_CENTER with the actual CostCenter
+              Service: databricks
+              EnvironmentType: ${var.env}
+      {{- end}}
+
+      tasks:
+        {{- if .raw_to_trusted}}
+        - task_key: raw_to_trusted
+          {{- if not .use_serverless}}
+          job_cluster_key: cluster
+          {{- end}}
+          max_retries: 2
+          notebook_task:
+            notebook_path: ./raw_to_trusted.py
+            base_parameters:
+              input_path: ${var.storage_root}/raw/PATH/TO/JSON/  # TODO: change this to the actual path where the raw JSON files are stored
+              table_name: ${resources.schemas.raw_{{.job_name}}.id}.table_name  # TODO: Replace the table_name
+              checkpoint_path: ${resources.volumes.raw_checkpoint_{{.job_name}}.volume_path}
+        {{- end}}
+        {{- if .trusted_to_service}}
+        - task_key: trusted_to_service
+          {{- if .raw_to_trusted}}
+          depends_on:
+            - raw_to_trusted
+          {{- end}}
+          {{- if not .use_serverless}}
+          job_cluster_key: cluster
+          {{- end}}
+          max_retries: 2
+          notebook_task:
+            notebook_path: ./trusted_to_service.py
+            base_parameters:
+              input_table_name: ${resources.schemas.raw_{{.job_name}}.id}.table_name  # TODO: Replace the table_name
+              table_name: ${resources.schemas.trusted_{{.job_name}}.id}.table_name  # TODO: Replace the table_name
+              checkpoint_path: ${resources.volumes.trusted_checkpoint_{{.job_name}}.volume_path}
+        {{- end}}

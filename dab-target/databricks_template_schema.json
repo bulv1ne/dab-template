@@ -1,0 +1,11 @@
+{
+  "properties": {
+    "environment": {
+      "type": "string",
+      "default": "live",
+      "description": "Environment name",
+      "order": 1
+    }
+  },
+  "success_message": "\nYour target 'prod_{{.environment}}' has been created. Check out targets/prod_{{.environment}}.yml for more information."
+}

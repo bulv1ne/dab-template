@@ -1,0 +1,18 @@
+targets:
+  prod_{{.environment}}:
+    mode: production
+    variables:
+      env: {{.environment}}
+      catalog: {{default_catalog}}
+      storage_root: "TODO"
+      slack_channel_email: TODO@example.com
+    workspace:
+      host: {{workspace_host}}
+      root_path: /Shared/.bundle/${bundle.name}/${bundle.target}
+    run_as:
+      service_principal_name: TODO
+    permissions:
+      - group_name: "{{default_catalog}}"
+        level: CAN_MANAGE
+      - group_name: "{{default_catalog}}_reader"
+        level: CAN_VIEW
