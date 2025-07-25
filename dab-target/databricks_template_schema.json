@@ -7,5 +7,5 @@
       "order": 1
     }
   },
-  "success_message": "\nYour target 'prod_{{.environment}}' has been created. Check out targets/prod_{{.environment}}.yml for more information."
+  "success_message": "\nYour target 'prod_{{.environment}}' has been created. Check out targets/prod_{{.environment}}.yml for more information. Don't forget to update your azure-pipelines.yml file to include the target prod_{{.environment}}.\n"
 }

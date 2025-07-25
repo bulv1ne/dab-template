@@ -7,5 +7,5 @@
       "order": 1
     }
   },
-  "success_message": "\nYour bundle '{{.project_name}}' has been created. Check out {{.project_name}}/README.md for more information."
+  "success_message": "\nYour bundle '{{.project_name}}' has been created. Check out {{.project_name}}/README.md to create additional targets and create your first job."
 }

@@ -5,11 +5,20 @@ pr:
 variables:
   - group: '<team>-databricks-token'
 
+# Find or create your service principal at https://dataregistry.dss.husqvarnagroup.com/service_principals/ and then create an OAuth token
+# Create the variable group, the variable group needs to contain the following variables:
+# DATABRICKS_CLIENT_ID
+# DATABRICKS_CLIENT_SECRET
+
 stages:
   - stage: DatabricksAssetBundleValidation
     jobs:
       - job: JobDeploymentPlan
-        displayName: Databricks Asset Bundle deployment
+        strategy:
+          matrix:  # Add your targets here
+            prod:
+              target: 'prod'
+        displayName: Databricks Asset Bundle deployment for $(target)
         pool:
           vmImage: 'ubuntu-latest'
         steps:
@@ -24,34 +33,20 @@ stages:
           - task: Bash@3
             displayName: Validate bundle
             env:
-              DATABRICKS_HOST: $(DATABRICKS_HOST)
               DATABRICKS_CLIENT_SECRET: $(DATABRICKS_CLIENT_SECRET)
               DATABRICKS_CLIENT_ID: $(DATABRICKS_CLIENT_ID)
             inputs:
               targetType: 'inline'
               script: |
-                databricks bundle validate
+                databricks bundle validate -t $(target)
 
           - task: Bash@3
             displayName: Deploy QA production pipelines
             condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
             env:
-              DATABRICKS_HOST: $(DATABRICKS_HOST)
               DATABRICKS_CLIENT_SECRET: $(DATABRICKS_CLIENT_SECRET)
               DATABRICKS_CLIENT_ID: $(DATABRICKS_CLIENT_ID)
             inputs:
               targetType: 'inline'
               script: |
-                databricks bundle deploy -t qa
-
-          - task: Bash@3
-            displayName: Deploy Live production pipelines
-            condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-            env:
-              DATABRICKS_HOST: $(DATABRICKS_HOST)
-              DATABRICKS_CLIENT_SECRET: $(DATABRICKS_CLIENT_SECRET)
-              DATABRICKS_CLIENT_ID: $(DATABRICKS_CLIENT_ID)
-            inputs:
-              targetType: 'inline'
-              script: |
-                databricks bundle deploy -t live
+                databricks bundle deploy -t $(target)

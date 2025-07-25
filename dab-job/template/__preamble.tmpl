@@ -1,0 +1,13 @@
+# Preamble
+
+This file only template directives; it is skipped for the actual output.
+
+{{skip "__preamble"}}
+
+{{if not .raw_to_trusted}}
+  {{skip "jobs/{{.job_name}}/raw_to_trusted.py"}}
+{{end}}
+
+{{if not .trusted_to_service}}
+  {{skip "jobs/{{.job_name}}/trusted_to_service.py"}}
+{{end}}
