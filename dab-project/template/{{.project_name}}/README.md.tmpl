@@ -6,19 +6,26 @@ This project was created using Databricks Asset Bundle templates. Please refer t
 
 ## Quick Setup
 
-1. Install and configure pre-commit hooks:
+1. Git init
+    ```sh
+    git init
+    ```
+
+2. Install and configure pre-commit hooks:
    ```sh
    pip install --user pre-commit  # or pipx install pre-commit
    pre-commit install
    ```
 
-2. Update the `targets/dev.yml` file:
+3. Update the `targets/dev.yml` file:
    - [ ] Verify the catalog
    - [ ] Update the storage_root
 
 ## Quick Reference
 
 ### Adding a new production target
+
+TODO: explain why you want to add a production target.
 
 ```sh
 databricks bundle init https://github.com/bulv1ne/dab-template --template-dir dab-target --profile TARGET_PROFILE_NAME

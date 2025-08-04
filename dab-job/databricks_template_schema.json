@@ -9,13 +9,13 @@
     "raw_to_trusted": {
       "order": 2,
       "type": "boolean",
-      "description": "Raw to trusted",
+      "description": "Does this job move data from raw to trusted?",
       "default": true
     },
     "trusted_to_service": {
       "order": 3,
       "type": "boolean",
-      "description": "Trusted to service",
+      "description": "Does this job move data from trusted to service?",
       "default": true
     },
     "use_serverless": {
