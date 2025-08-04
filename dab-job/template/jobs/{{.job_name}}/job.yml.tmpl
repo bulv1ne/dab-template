@@ -87,7 +87,11 @@ resources:
           notebook_task:
             notebook_path: ./raw_to_trusted.py
             base_parameters:
+              {{- if .landingzone_to_raw}}
               raw_table_name: ${resources.schemas.raw_{{.job_name}}.id}.table_name  # TODO: Replace the table_name
+              {{- else}}
+              raw_table_name: table_name  # TODO: Replace the table_name
+              {{- end}}
               trusted_table_name: ${resources.schemas.trusted_{{.job_name}}.id}.table_name  # TODO: Replace the table_name
               checkpoint_path: ${resources.volumes.trusted_checkpoint_{{.job_name}}.volume_path}
         {{- end}}
