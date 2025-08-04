@@ -21,7 +21,7 @@
     "use_serverless": {
       "order": 4,
       "type": "boolean",
-      "description": "Use serverless compute",
+      "description": "Use serverless compute? Otherwise a pre-defined cluster will be used.",
       "default": false
     }
   }
