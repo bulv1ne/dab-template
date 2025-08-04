@@ -6,16 +6,16 @@
       "description": "Job name",
       "order": 1
     },
-    "raw_to_trusted": {
+    "landingzone_to_raw": {
       "order": 2,
       "type": "boolean",
-      "description": "Does this job move data from raw to trusted?",
+      "description": "Does this job move data from landinzone (e.g. json file) to raw delta table?",
       "default": true
     },
-    "trusted_to_service": {
+    "raw_to_trusted": {
       "order": 3,
       "type": "boolean",
-      "description": "Does this job move data from trusted to service?",
+      "description": "Does this job move data from raw delta table to a trusted table?",
       "default": true
     },
     "use_serverless": {

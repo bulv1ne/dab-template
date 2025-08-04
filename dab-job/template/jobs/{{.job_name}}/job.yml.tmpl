@@ -1,14 +1,14 @@
 # The main job for {{.job_name}}.
 resources:
   schemas:
-    {{- if .raw_to_trusted}}
+    {{- if .landingzone_to_raw}}
     raw_{{.job_name}}:
       name: raw__{{.job_name}}
       catalog_name: ${var.catalog}
       comment: "The schema that contains raw {{.job_name}} tables.\nCreated by DABs."
       storage_root: ${var.storage_root}
     {{- end}}
-    {{- if .trusted_to_service}}
+    {{- if .raw_to_trusted}}
     trusted_{{.job_name}}:
       name: trusted__{{.job_name}}
       catalog_name: ${var.catalog}
@@ -16,14 +16,14 @@ resources:
       storage_root: ${var.storage_root}
     {{- end}}
   volumes:
-    {{- if .raw_to_trusted}}
+    {{- if .landingzone_to_raw}}
     raw_checkpoint_{{.job_name}}:
       name: checkpoint
       catalog_name: ${var.catalog}
       schema_name: ${resources.schemas.raw_{{.job_name}}.name}
       comment: "A managed volume to store streaming checkpoint data.\nCreated by DABs.\nDo not edit!"
     {{- end}}
-    {{- if .trusted_to_service}}
+    {{- if .raw_to_trusted}}
     trusted_checkpoint_{{.job_name}}:
       name: checkpoint
       catalog_name: ${var.catalog}
@@ -54,10 +54,6 @@ resources:
             spark_version: 16.4.x-scala2.13
             data_security_mode: USER_ISOLATION
 
-            aws_attributes:
-              first_on_demand: 1
-              availability: SPOT_WITH_FALLBACK
-              zone_id: auto
             custom_tags:
               CostCenter: COST_CENTER  # TODO: Replace COST_CENTER with the actual CostCenter
               Service: databricks
@@ -65,8 +61,25 @@ resources:
       {{- end}}
 
       tasks:
+        {{- if .landingzone_to_raw}}
+        - task_key: landingzone_to_raw
+          {{- if not .use_serverless}}
+          job_cluster_key: cluster
+          {{- end}}
+          max_retries: 2
+          notebook_task:
+            notebook_path: ./landingzone_to_raw.py
+            base_parameters:
+              input_path: ${var.storage_root}/raw/PATH/TO/JSON/  # TODO: change this to the actual path where the raw JSON files are stored
+              raw_table_name: ${resources.schemas.raw_{{.job_name}}.id}.table_name  # TODO: Replace the table_name
+              checkpoint_path: ${resources.volumes.raw_checkpoint_{{.job_name}}.volume_path}
+        {{- end}}
         {{- if .raw_to_trusted}}
         - task_key: raw_to_trusted
+          {{- if .landingzone_to_raw}}
+          depends_on:
+            - landingzone_to_raw
+          {{- end}}
           {{- if not .use_serverless}}
           job_cluster_key: cluster
           {{- end}}
@@ -74,24 +87,7 @@ resources:
           notebook_task:
             notebook_path: ./raw_to_trusted.py
             base_parameters:
-              input_path: ${var.storage_root}/raw/PATH/TO/JSON/  # TODO: change this to the actual path where the raw JSON files are stored
-              table_name: ${resources.schemas.raw_{{.job_name}}.id}.table_name  # TODO: Replace the table_name
-              checkpoint_path: ${resources.volumes.raw_checkpoint_{{.job_name}}.volume_path}
-        {{- end}}
-        {{- if .trusted_to_service}}
-        - task_key: trusted_to_service
-          {{- if .raw_to_trusted}}
-          depends_on:
-            - raw_to_trusted
-          {{- end}}
-          {{- if not .use_serverless}}
-          job_cluster_key: cluster
-          {{- end}}
-          max_retries: 2
-          notebook_task:
-            notebook_path: ./trusted_to_service.py
-            base_parameters:
-              input_table_name: ${resources.schemas.raw_{{.job_name}}.id}.table_name  # TODO: Replace the table_name
-              table_name: ${resources.schemas.trusted_{{.job_name}}.id}.table_name  # TODO: Replace the table_name
+              raw_table_name: ${resources.schemas.raw_{{.job_name}}.id}.table_name  # TODO: Replace the table_name
+              trusted_table_name: ${resources.schemas.trusted_{{.job_name}}.id}.table_name  # TODO: Replace the table_name
               checkpoint_path: ${resources.volumes.trusted_checkpoint_{{.job_name}}.volume_path}
         {{- end}}

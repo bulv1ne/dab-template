@@ -5,18 +5,20 @@
 # COMMAND ----------
 
 # Get the base_parameters from the job
-input_table_name = dbutils.widgets.get("input_table_name")
+input_path = dbutils.widgets.get("input_path")
 checkpoint_path = dbutils.widgets.get("checkpoint_path")
-table_name = dbutils.widgets.get("table_name")
+table_name = dbutils.widgets.get("raw_table_name")
 
 # COMMAND ----------
 
 # Read and write
 stream = (
-    spark.readStream.table(input_table_name)
-    # Transformations
-    # Write your transformations here
-    # ...
+    spark.readStream.format("cloudFiles")
+    .option("cloudFiles.format", "json")
+    .option("cloudFiles.inferColumnTypes", "false")
+    .option("cloudFiles.schemaEvolutionMode", "addNewColumns")
+    .option("cloudFiles.schemaLocation", checkpoint_path)
+    .load(input_path)
     # Write
     .writeStream.option("checkpointLocation", checkpoint_path)
     .option("mergeSchema", "true")
