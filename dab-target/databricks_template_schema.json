@@ -3,7 +3,7 @@
     "environment": {
       "type": "string",
       "default": "live",
-      "description": "Environment name",
+      "description": "Environment name (usually test, live, sandbox, etc.)",
       "order": 1
     }
   },
