@@ -78,7 +78,7 @@ resources:
         - task_key: raw_to_trusted
           {{- if .landingzone_to_raw}}
           depends_on:
-            - landingzone_to_raw
+            - task_key: landingzone_to_raw
           {{- end}}
           {{- if not .use_serverless}}
           job_cluster_key: cluster
