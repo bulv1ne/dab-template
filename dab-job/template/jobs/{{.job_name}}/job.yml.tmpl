@@ -52,7 +52,15 @@ resources:
             node_type_id: {{smallest_node_type}}
             num_workers: 2
             spark_version: 16.4.x-scala2.13
-            data_security_mode: USER_ISOLATION
+            # Most workloads can use the default data security mode
+            data_security_mode: USER_ISOLATION  # Supports Python, Scala and SQL
+
+            # ML workloads or when you need to use a AWS service that requires an instance profile,
+            # use the dedicated data security mode
+            # data_security_mode: DATA_SECURITY_MODE_DEDICATED  # Supports all languages + ML
+            # single_user_name: {{default_catalog}}
+            # aws_attributes:
+            #   instance_profile_arn: "TODO"
 
             custom_tags:
               CostCenter: COST_CENTER  # TODO: Replace COST_CENTER with the actual CostCenter
