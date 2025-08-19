@@ -12,9 +12,7 @@ This repository contains the following templates:
 
 ## Prerequisites
 
-TODO
-- Databricks CLI installed and configured
-- Change PROFILE_NAME in the commands below to your Databricks profile name
+- [Databricks CLI](https://docs.databricks.com/aws/en/dev-tools/cli/install) installed and configured
 
 ## How to use
 
