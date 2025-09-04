@@ -11,7 +11,7 @@ This project was created using Databricks Asset Bundle templates. Please refer t
     git init
     ```
 
-2. Install and configure pre-commit hooks:
+2. Install and configure pre-commit hooks as follows:
    ```sh
    pip install --user pre-commit  # or pipx install pre-commit
    pre-commit install
@@ -19,11 +19,17 @@ This project was created using Databricks Asset Bundle templates. Please refer t
 
 3. Update the `targets/dev.yml` file:
    - [ ] Verify the catalog
-   - [ ] Update the storage_root
+   - [ ] Update the storage_root (see your Databricks workspace or cloud storage configuration)
 
 ## Quick Reference
 
-### Adding a new production target
+### Add a new Databricks job to your project:
+
+```sh
+databricks bundle init https://github.com/bulv1ne/dab-template --template-dir dab-job --profile PROFILE_NAME
+```
+
+### Add a new production target
 
 TODO: explain why you want to add a production target.
 
@@ -33,19 +39,18 @@ databricks bundle init https://github.com/bulv1ne/dab-template --template-dir da
 
 Remember to update the target configuration and add it to your azure-pipelines.yml matrix.
 
-### Adding a new Databricks job
-
-```sh
-databricks bundle init https://github.com/bulv1ne/dab-template --template-dir dab-job --profile PROFILE_NAME
-```
-
 ### Useful Commands
 
 ```sh
-# Validate your bundle locally
+# Validate bundle configuration for errors, warnings, and recommendations.
+# Validation checks the configuration syntax and schema, permissions, etc.
 databricks bundle validate -t <target>
 
-# Deploy your bundle locally
+# Summarize resources deployed by this bundle with their workspace URLs.
+# Useful after deployment to see what was created and where to find it.
+databricks bundle summary -t <target>
+
+# Deploy your bundle
 databricks bundle deploy -t <target>
 ```
 
